@@ -41,7 +41,6 @@ public class inviteActivity extends ListActivity {
 
         setListAdapter(new ContactInfoListAdapter(this, R.layout.list_item, cursor, 0));
         setContentView(R.layout.activity_invite);
-        setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     @Override
