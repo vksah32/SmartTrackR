@@ -8,27 +8,20 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OK"
-        android:id="@+id/startOK"
-        android:onClick="invitePeople"
+        android:text="Create Session"
+        android:id="@+id/createSession"
+        android:onClick="createSession"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
-    <EditText
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:ems="10"
-        android:id="@+id/signUpPhone"
-        android:layout_above="@+id/startOK"
+        android:text="Join Session"
+        android:id="@+id/joinSession"
+        android:onClick="joinSession"
+        android:layout_above="@+id/createSession"
         android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Sign Up"
-        android:id="@+id/textView"
-        android:layout_above="@+id/editText"
-        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
