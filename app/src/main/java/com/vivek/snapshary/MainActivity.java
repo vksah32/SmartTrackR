@@ -2,17 +2,16 @@ package com.vivek.snapshary;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcelable;
+import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -25,28 +24,39 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-
     private EditText mPhone;
     static public  ParseObject mSession;
     private String mSessionID;
+    private String mUserID;
     private String mAndroidID;
     private EditText mUserName;
     public static ParseObject mUser;
 
+    private EditText mFirstName;
+    private EditText mLastName;
+    private EditText mEmail;
 
-
+    public static final String PREF_NAME = "pref";
+    public static final String PREF_KEY_USER_ID = "userID";
+    public static final String USER_TABLE_NAME = "Newuser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         doesUserExists();
 
+        TextView loading = new TextView(this);
+        loading.setText("Loading...");
+        loading.setPadding(100, 100, 40, 40);
+        setContentView(loading);
+    }
+
+    private void displaySignUpForm() {
         //only if google account is associated
         setContentView(R.layout.activity_main);
-        mUserName = (EditText) findViewById(R.id.name);
-
-
-
+        mFirstName = (EditText) findViewById(R.id.firstName);
+        mLastName = (EditText) findViewById(R.id.lastName);
+        mEmail = (EditText) findViewById(R.id.email);
     }
 
     @Override
@@ -72,34 +82,40 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void submit(View v){
-        String name = mUserName.getText().toString();
-        mUser = new ParseObject("Newuser");
-        mUser.put("NAME", name);
-        mUser.put("AndroidID", getAndroidID());
-        mUser.saveInBackground();
-        startActivity(new Intent(this, WelcomeActivity.class));
+        String firstName = mFirstName.getText().toString();
+        String lastName = mLastName.getText().toString();
+        String email = mEmail.getText().toString();
 
+        mUser = new ParseObject(USER_TABLE_NAME);
+        mUser.put("firstName", firstName);
+        mUser.put("lastName", lastName);
+        mUser.put("email", email);
+        mUser.put("androidID", getAndroidID());
+        mUser.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.i("USERID", mUser.getObjectId());
+                redirectUser(mUser);
+            }
+        });
     }
 
     public void createSession(View v){
-//
-////       mSession = new Session(mPhone.getText().toString());
-//        mSession = new ParseObject("Session");
-//        mSession.put("creator", mUser);
-//        mSession.saveInBackground(new SaveCallback() {
-//            @Override
-//            public void done(ParseException e) {
-//                mSessionID = mSession.getObjectId();
-//                Log.i("SESSIONID", mSessionID);
-//                Intent i = new Intent(MainActivity.this, SessionCreated.class);
-//                i.putExtra("Code",mSessionID);
-//                startActivity(i);
-//
-//            }
-//        });
 
+//       mSession = new Session(mPhone.getText().toString());
+        mSession = new ParseObject("Session");
+        mSession.put("creator", mUser);
+        mSession.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                mSessionID = mSession.getObjectId();
+                Log.i("SESSIONID", mSessionID);
+                Intent i = new Intent(MainActivity.this, SessionCreated.class);
+                i.putExtra("Code", mSessionID);
+                startActivity(i);
 
-
+            }
+        });
     }
 
     public void joinSession(View v){
@@ -112,31 +128,47 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void doesUserExists(){
-        ParseQuery<ParseObject> userQuery = ParseQuery.getQuery("User");
+        ParseQuery<ParseObject> userQuery = ParseQuery.getQuery(USER_TABLE_NAME);
         userQuery.whereEqualTo("androidID", getAndroidID());
         Log.i("ANDROID ID", getAndroidID());
         userQuery.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> userList, ParseException e) {
                 if (e == null) {
-                    if (userList.size() == 0)
-                        setUser();
-                    else
+                    if (userList.size() == 0) {
+//                        setUser();
+                        MainActivity.this.displaySignUpForm();
+                    } else {
                         mUser = userList.get(0);
-
+                        redirectUser(mUser);
+                    }
                 } else {
                     Log.d("USER", "Error: " + e.getMessage());
                 }
             }
         });
-
     }
 
 
     public void setUser(){
-        mUser = new ParseObject("User");
+        mUser = new ParseObject(USER_TABLE_NAME);
         mUser.put("androidID", getAndroidID());
         mUser.saveInBackground();
+    }
 
+    public void redirectUser(ParseObject mUser) {
+        mUserID = mUser.getObjectId();
+        SharedPreferences mPref = MainActivity.this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor mPrefEditor = mPref.edit();
+        mPrefEditor.putString(PREF_KEY_USER_ID, mUserID);
+        mPrefEditor.commit();
 
+        Intent i = new Intent(MainActivity.this, WelcomeActivity.class);
+        startActivity(i);
+    }
+
+    public static String getUserID(Context context) {
+        SharedPreferences mPref = context.getSharedPreferences(MainActivity.PREF_NAME, Context.MODE_PRIVATE);
+        String userID = mPref.getString(MainActivity.PREF_KEY_USER_ID, "");
+        return userID;
     }
 }
