@@ -96,11 +96,6 @@ public class WelcomeActivity  extends ActionBarActivity
         });
     }
 
-    public void classifyintoTent(Double lat, Double lon){
-
-    }
-
-
     public void sendRequest(){
 //        Toast.makeText(getApplicationContext(), "lalalal", Toast.LENGTH_SHORT).show();
         if (mConnected) {
@@ -115,11 +110,7 @@ public class WelcomeActivity  extends ActionBarActivity
                     Double lat = mLastLocation.getLatitude();
                     Double lon = mLastLocation.getLongitude();
                     if (e == null){
-<<<<<<< HEAD
                         classifyintoTent(lat,lon);
-=======
-                        classifyintoTent(mLastLocation.getLatitude(),mLastLocation.getLongitude() );
->>>>>>> 802cb276bdfca5faef76ff27f72dfb3e0aab8d3b
                     }
                 }
             });
@@ -189,8 +180,8 @@ public class WelcomeActivity  extends ActionBarActivity
 
 
     protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
+//        LocationServices.FusedLocationApi.requestLocationUpdates(
+//                mGoogleApiClient, mLocationRequest, this);
     }
 
 
