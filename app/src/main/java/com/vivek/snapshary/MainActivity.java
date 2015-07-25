@@ -25,12 +25,13 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    static public ParseObject mUser;
+
     private EditText mPhone;
     static public  ParseObject mSession;
     private String mSessionID;
     private String mAndroidID;
     private EditText mUserName;
+    public static ParseObject mUser;
 
 
 
@@ -72,28 +73,30 @@ public class MainActivity extends ActionBarActivity {
 
     public void submit(View v){
         String name = mUserName.getText().toString();
-        ParseObject user = new ParseObject("Newuser");
-        user.put("NAME", name);
-        user.saveInBackground();
+        mUser = new ParseObject("Newuser");
+        mUser.put("NAME", name);
+        mUser.put("AndroidID", getAndroidID());
+        mUser.saveInBackground();
+        startActivity(new Intent(this, WelcomeActivity.class));
 
     }
 
     public void createSession(View v){
-
-//       mSession = new Session(mPhone.getText().toString());
-        mSession = new ParseObject("Session");
-        mSession.put("creator", mUser);
-        mSession.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                mSessionID = mSession.getObjectId();
-                Log.i("SESSIONID", mSessionID);
-                Intent i = new Intent(MainActivity.this, SessionCreated.class);
-                i.putExtra("Code",mSessionID);
-                startActivity(i);
-
-            }
-        });
+//
+////       mSession = new Session(mPhone.getText().toString());
+//        mSession = new ParseObject("Session");
+//        mSession.put("creator", mUser);
+//        mSession.saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                mSessionID = mSession.getObjectId();
+//                Log.i("SESSIONID", mSessionID);
+//                Intent i = new Intent(MainActivity.this, SessionCreated.class);
+//                i.putExtra("Code",mSessionID);
+//                startActivity(i);
+//
+//            }
+//        });
 
 
 
