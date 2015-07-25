@@ -6,4 +6,5 @@
     <string name="title_activity_invite">inviteActivity</string>
     <string name="title_activity_session_created">SessionCreated</string>
     <string name="title_activity_join_session">JoinSession</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
 </resources>

@@ -30,6 +30,8 @@ public class MainActivity extends ActionBarActivity {
     static public  ParseObject mSession;
     private String mSessionID;
     private String mAndroidID;
+    private EditText mUserName;
+
 
 
 
@@ -40,6 +42,9 @@ public class MainActivity extends ActionBarActivity {
 
         //only if google account is associated
         setContentView(R.layout.activity_main);
+        mUserName = (EditText) findViewById(R.id.name);
+
+
 
     }
 
@@ -63,6 +68,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void submit(View v){
+        String name = mUserName.getText().toString();
+        ParseObject user = new ParseObject("Newuser");
+        user.put("NAME", name);
+        user.saveInBackground();
+
     }
 
     public void createSession(View v){
