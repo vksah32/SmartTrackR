@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,6 +35,15 @@ public class WelcomeActivity  extends ActionBarActivity
     private boolean mConnected;
     LocationRequest mLocationRequest;
 
+    private EditText myLat;
+    private EditText myLon;
+    private EditText oneLat;
+    private EditText oneLon;
+    private EditText twoLat;
+    private EditText twoLon;
+    private EditText oneDist;
+    private EditText twoDist;
+    private EditText status;
 
     private static final String LOG_TAG = WelcomeActivity.class.getSimpleName();
 
@@ -41,6 +51,34 @@ public class WelcomeActivity  extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        myLat = (EditText) findViewById(R.id.myLat);
+        myLon = (EditText) findViewById(R.id.myLon);
+        oneLat = (EditText) findViewById(R.id.oneLat);
+        oneLon = (EditText) findViewById(R.id.oneLon);
+        twoLat = (EditText) findViewById(R.id.twoLat);
+        twoLon = (EditText) findViewById(R.id.twoLon);
+        oneDist = (EditText) findViewById(R.id.oneDist);
+        twoDist = (EditText) findViewById(R.id.twoDist);
+        status = (EditText) findViewById(R.id.status);
+
+        ParseQuery<ParseObject> tentQuery = ParseQuery.getQuery("Tent");
+//        tentQuery.whereEqualTo("Radius", 15); //NOTE: This is just a shortcut for now to get all the rows, have to make it more generalized later
+        tentQuery.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> tentList, ParseException e) {
+                if (e == null) {
+                    ParseObject one = tentList.get(0);
+                    oneLat.setText(String.valueOf(one.getDouble("Lat")));
+                    oneLon.setText(String .valueOf(one.getDouble("Lon")));
+
+                    ParseObject two = tentList.get(1);
+                    twoLat.setText(String.valueOf(two.getDouble("Lat")));
+                    twoLon.setText(String.valueOf(two.getDouble("Lon")));
+                } else {
+
+                }
+            }
+        });
 
         String userID = MainActivity.getUserID(this);
         Log.i(LOG_TAG, "User ID = " + userID);
@@ -83,6 +121,8 @@ public class WelcomeActivity  extends ActionBarActivity
     }
 
     public void classifyintoTent(final Double lat, final Double lon) {
+        myLat.setText(String.valueOf(lat));
+        myLon.setText(String.valueOf(lon));
         ParseQuery<ParseObject> tentQuery = ParseQuery.getQuery("Tent");
 //        tentQuery.whereEqualTo("Radius", 15); //NOTE: This is just a shortcut for now to get all the rows, have to make it more generalized later
         tentQuery.findInBackground(new FindCallback<ParseObject>() {
@@ -98,24 +138,25 @@ public class WelcomeActivity  extends ActionBarActivity
     }
 
     public void checkTent(Double lat, Double lon, List<ParseObject> tentList) {
-        Log.d("CHECK TENT", "in CHecktent");
+        int c = 0;
         for (final ParseObject tent : tentList) {
             Double tentLat = (double) tent.getNumber("Lat");
             Double tentLon = (double) tent.getNumber("Lon");
             Double tentRadius = tent.getNumber("Radius").doubleValue();
-            Log.d("tentlat",tentLat+"");
-            Log.d("tentlon",tentLon+"");
-            Log.d("lat",lat+"");
-            Log.d("lon",lon+"");
             Double x2 = (lat - tentLat) * (lat - tentLat);
             Double y2 = (lon - tentLon) * (lon - tentLon);
             Double dist = Math.sqrt(x2 + y2);
-            Log.d("dist",dist+"");
-            Log.d("tr",tentRadius+"");
+
+            if (c==0) { // tent one
+                oneDist.setText(String.valueOf(dist));
+            } else if (c==1) { // tent two
+                twoDist.setText(String.valueOf(dist));
+            }
+
             if (dist < tentRadius) {
+                status.setText("In Tent " + (c+1));
                 ParseQuery<ParseObject> query = ParseQuery.getQuery(MainActivity.USER_TABLE_NAME);
 
-// Retrieve the object by id
                 query.getInBackground(MainActivity.getUserID(this), new GetCallback<ParseObject>() {
                     public void done(ParseObject user, ParseException e) {
                         if (e == null) {
@@ -126,26 +167,11 @@ public class WelcomeActivity  extends ActionBarActivity
                         }
                     }
                 });
-
-//                MainActivity.mUser.put("CurrentTent", tent);
-//                MainActivity.mUser.saveInBackground();
-                return; // exit after finding the first tent
+                //return; // exit after finding the first tent
             }
+            c++;
         }
-
-//        ParseQuery<ParseObject> query = ParseQuery.getQuery(MainActivity.USER_TABLE_NAME);
-//
-//// Retrieve the object by id
-//        query.getInBackground(MainActivity.getUserID(this), new GetCallback<ParseObject>() {
-//            public void done(ParseObject user, ParseException e) {
-//                if (e == null) {
-//                    // Now let's update it with some new data. In this case, only cheatMode and score
-//                    // will get sent to the Parse Cloud. playerName hasn't changed.
-//                    user.put("CurrentTent", "moving");
-//                    user.saveInBackground();
-//                }
-//            }
-//        });
+//        status.setText("Moving");
     }
 
     public void sendRequest() {
