@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
@@ -25,6 +26,7 @@ public class WelcomeActivity  extends ActionBarActivity
     private Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private boolean mConnected;
+    LocationRequest mLocationRequest;
 
 
     private static final String LOG_TAG = WelcomeActivity.class.getSimpleName();
@@ -76,19 +78,24 @@ public class WelcomeActivity  extends ActionBarActivity
 
 
 
+    public void classifyintoTent(Double lat, Double lon){
+
+    }
+
+
     public void sendRequest(){
 //        Toast.makeText(getApplicationContext(), "lalalal", Toast.LENGTH_SHORT).show();
         if (mConnected) {
             Log.i("SENDING REQUEST", "kakak");
             Double lat = mLastLocation.getLatitude();
-            Double Long = mLastLocation.getLongitude();
+            Double lon = mLastLocation.getLongitude();
             MainActivity.mUser.add("CurrentLocation", lat);
-            MainActivity.mUser.add("CurrentLocation", long);
+            MainActivity.mUser.add("CurrentLocation", lon);
             MainActivity.mUser.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
                     if (e == null){
-                        classifyintoTent(lat,long );
+                        classifyintoTent(mLastLocation.getLatitude(),mLastLocation.getLongitude() );
                     }
                 }
             });
@@ -115,9 +122,13 @@ public class WelcomeActivity  extends ActionBarActivity
                 mGoogleApiClient);
         Log.i("LOCATION", "got it");
         mConnected = true;
+        startLocationUpdates();
+
 
 
     }
+
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -142,6 +153,20 @@ public class WelcomeActivity  extends ActionBarActivity
                     haveConnectedWifi = true;
         }
         return haveConnectedWifi;
+    }
+
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
     }
 
 
