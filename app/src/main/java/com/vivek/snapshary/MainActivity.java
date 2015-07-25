@@ -24,12 +24,13 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    static public ParseObject mUser;
+    private EditText mPhone;
     static public  ParseObject mSession;
     private String mSessionID;
     private String mUserID;
     private String mAndroidID;
     private EditText mUserName;
+    public static ParseObject mUser;
 
     private EditText mFirstName;
     private EditText mLastName;
@@ -115,9 +116,6 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
-
-
-
     }
 
     public void joinSession(View v){
