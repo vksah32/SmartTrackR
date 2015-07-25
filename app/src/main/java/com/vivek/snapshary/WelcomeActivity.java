@@ -2,6 +2,7 @@ package com.vivek.snapshary;
 
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.ActionBarActivity;
@@ -21,7 +22,7 @@ import com.parse.SaveCallback;
 
 
 public class WelcomeActivity  extends ActionBarActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     private Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private boolean mConnected;
@@ -87,16 +88,18 @@ public class WelcomeActivity  extends ActionBarActivity
             MainActivity.mUser.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    if (e == null){
-                        classifyintoTent(mLastLocation.getLatitude(),mLastLocation.getLongitude() );
+                    if (e == null) {
+                        classifyintoTent(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                        Toast.makeText(getApplicationContext(), "" + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-            Toast.makeText(getApplicationContext(), "" + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+
         } else {
 
             Toast.makeText(getApplicationContext(), "" + "connection failed", Toast.LENGTH_SHORT).show();
         }
+
 
 
     }
@@ -115,7 +118,9 @@ public class WelcomeActivity  extends ActionBarActivity
                 mGoogleApiClient);
         Log.i("LOCATION", "got it");
         mConnected = true;
-        startLocationUpdates();
+        createLocationRequest();
+        if (mLocationRequest != null)
+            startLocationUpdates();
 
 
 
@@ -151,15 +156,36 @@ public class WelcomeActivity  extends ActionBarActivity
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(0);
+//        mLocationRequest.setFastestInterval(10);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
 
     protected void startLocationUpdates() {
+        Toast.makeText(this,"STARTED LOC UPDATE", Toast.LENGTH_SHORT).show();
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d("LOC", "location changed");
+
+        MainActivity.mUser.remove("CurrentLocation");
+        MainActivity.mUser.add("CurrentLocation", location.getLatitude());
+        MainActivity.mUser.add("CurrentLocation", location.getLongitude());
+        MainActivity.mUser.saveInBackground();
+        classifyintoTent(location.getLatitude(), location.getLongitude());
+
+
+        Toast.makeText(this, "Location changed", Toast.LENGTH_SHORT).show();
+        createLocationRequest();
+        if (mLocationRequest != null)
+            startLocationUpdates();
+
+
     }
 
 
