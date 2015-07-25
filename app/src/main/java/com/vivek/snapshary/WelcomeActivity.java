@@ -15,8 +15,13 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
+
+import java.util.List;
 
 
 public class WelcomeActivity  extends ActionBarActivity
@@ -67,21 +72,36 @@ public class WelcomeActivity  extends ActionBarActivity
 
     }
 
-
+    public void classifyintoTent(Double lat, Double lon){
+        ParseQuery<ParseObject> tentQuery = ParseQuery.getQuery("Tent");
+        tentQuery.whereEqualTo("Radius", 15); //NOTE: This is just a shortcut for now to get all the rows, have to make it more generalized later
+        Log.d("SOMETHING:","I am not inside classifyintoTent");
+        tentQuery.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> userList, ParseException e) {
+                if (e == null) {
+                    Log.d("USERLIST: ", ""+userList);
+                } else {
+                    Log.d("USER", "Error: " + e.getMessage());
+                }
+            }
+        });
+    }
 
     public void sendRequest(){
 //        Toast.makeText(getApplicationContext(), "lalalal", Toast.LENGTH_SHORT).show();
         if (mConnected) {
             Log.i("SENDING REQUEST", "kakak");
             Double lat = mLastLocation.getLatitude();
-            Double Long = mLastLocation.getLongitude();
+            Double lon = mLastLocation.getLongitude();
             MainActivity.mUser.add("CurrentLocation", lat);
-            MainActivity.mUser.add("CurrentLocation", long);
+            MainActivity.mUser.add("CurrentLocation", lon);
             MainActivity.mUser.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
+                    Double lat = mLastLocation.getLatitude();
+                    Double lon = mLastLocation.getLongitude();
                     if (e == null){
-                        classifyintoTent(lat,long );
+                        classifyintoTent(lat,lon);
                     }
                 }
             });
