@@ -1,6 +1,7 @@
 package com.vivek.snapshary;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -29,12 +31,19 @@ public class WelcomeActivity  extends ActionBarActivity
     private Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private boolean mConnected;
+    LocationRequest mLocationRequest;
 
+
+    private static final String LOG_TAG = WelcomeActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        String userID = MainActivity.getUserID(this);
+        Log.i(LOG_TAG, "User ID = " + userID);
+
         if (haveWifiConnection()) {
             buildGoogleApiClient();
             if (mGoogleApiClient != null) {
@@ -87,6 +96,11 @@ public class WelcomeActivity  extends ActionBarActivity
         });
     }
 
+    public void classifyintoTent(Double lat, Double lon){
+
+    }
+
+
     public void sendRequest(){
 //        Toast.makeText(getApplicationContext(), "lalalal", Toast.LENGTH_SHORT).show();
         if (mConnected) {
@@ -101,7 +115,11 @@ public class WelcomeActivity  extends ActionBarActivity
                     Double lat = mLastLocation.getLatitude();
                     Double lon = mLastLocation.getLongitude();
                     if (e == null){
+<<<<<<< HEAD
                         classifyintoTent(lat,lon);
+=======
+                        classifyintoTent(mLastLocation.getLatitude(),mLastLocation.getLongitude() );
+>>>>>>> 802cb276bdfca5faef76ff27f72dfb3e0aab8d3b
                     }
                 }
             });
@@ -128,9 +146,13 @@ public class WelcomeActivity  extends ActionBarActivity
                 mGoogleApiClient);
         Log.i("LOCATION", "got it");
         mConnected = true;
+        startLocationUpdates();
+
 
 
     }
+
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -155,6 +177,20 @@ public class WelcomeActivity  extends ActionBarActivity
                     haveConnectedWifi = true;
         }
         return haveConnectedWifi;
+    }
+
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
     }
 
 
