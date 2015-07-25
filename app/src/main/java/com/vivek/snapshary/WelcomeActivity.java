@@ -1,7 +1,10 @@
 package com.vivek.snapshary;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,10 +12,14 @@ import android.view.View;
 
 public class WelcomeActivity extends ActionBarActivity {
 
+    private static final String LOG_TAG = WelcomeActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        String userID = MainActivity.getUserID(this);
+        Log.i(LOG_TAG, "User ID = " + userID);
     }
 
     @Override
