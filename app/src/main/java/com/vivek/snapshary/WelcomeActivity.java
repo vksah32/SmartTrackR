@@ -212,7 +212,7 @@ public class WelcomeActivity  extends ActionBarActivity
 
 
     protected void startLocationUpdates() {
-        Toast.makeText(this,"STARTED LOC UPDATE", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,"STARTED LOC UPDATE", Toast.LENGTH_SHORT).show();
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -229,7 +229,7 @@ public class WelcomeActivity  extends ActionBarActivity
         classifyintoTent(location.getLatitude(), location.getLongitude());
 
 
-        Toast.makeText(this, "Location changed", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Location changed", Toast.LENGTH_SHORT).show();
         createLocationRequest();
         if (mLocationRequest != null)
             startLocationUpdates();
